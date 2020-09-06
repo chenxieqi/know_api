@@ -1,3 +1,17 @@
+/**
+* name: ユーザー名
+  password: パスワード
+  avatar_url:  アイコンURL
+  gender: 性別
+  introduction:　自己紹介 
+  locations: 所在地
+  business: 業界
+  educations: 学歴
+    school: 学校
+    major: 専門
+    diploma: 学位
+  following: フォロー
+ */
 const Mongoose = require('mongoose');
 
 const { Schema, model } = Mongoose;
