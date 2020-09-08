@@ -2,17 +2,20 @@
  * ユーザーAPI
  */
 const User = require('../models/users');
+const Topic = require('../models/topics')
 const jsonwebtoken = require('jsonwebtoken');
 const { secret } = require('../config');
-const users = require('../models/users');
 
-class Userctl {
+class UsersCtl {
   index(ctx) {
     ctx.body = 'this is user page';
   }
   // ユーザーリスト
-  async findAllUsers(ctx) {
-    ctx.body = await User.find();
+  async findAll(ctx) {
+    const { per_page = 10, page = 1 } = ctx.query;
+    const setPage = Math.max(page * 1, 1) - 1;
+    const perPage = Math.max(per_page * 1, 1);
+    ctx.body = await User.find({ name: new RegExp(ctx.query.q) }).limit(perPage).skip(setPage * perPage);
   }
   // 新規
   async create(ctx) {
@@ -51,15 +54,21 @@ class Userctl {
       educations: { type: 'array', itemType: 'object', required: false },
     });
     const user = await User.findOneAndUpdate(ctx.params.id, ctx.request.body);
-    if (!user) { ctx.throw(401, 'cant update'); }
+    if (!user) { ctx.throw(401, 'update failed'); }
     ctx.body = ctx.request.body;
   }
   // ユーザー検索
   async findById(ctx) {
     const id = ctx.params.id;
-    const { fileds } = ctx.query;
+    const { fileds = '' } = ctx.query;
     const selectedFiled = fileds.split(';').filter(f => f).map(f => ' +' + f).join('');
-    const user = await User.findById(id).select(selectedFiled);
+    const populateStr = fileds.split(';').filter(f => f).map(f => {
+      if (f === 'educations') {
+        return 'educations.school educations.major';
+      }
+      return f;
+    }).join(' ');
+    const user = await User.findById(id).select(selectedFiled).populate(populateStr);
     if (!user) { ctx.throw(404, 'user does not exist') };
     ctx.body = user;
   }
@@ -104,6 +113,37 @@ class Userctl {
     }
     ctx.status = 204;
   }
+  // トピック存在チェック
+  async checkTopicExist(ctx, next) {
+    const topic = await Topic.findById(ctx.params.id);
+    if (!topic) { ctx.throw(404, 'topic does not exist'); }
+    await next();
+  }
+  // トピックフォローリスト
+  async followingTopicList(ctx) {
+    const user = await User.findById(ctx.params.id).select('+followingTopics').populate('followingTopics');
+    if (!user) { ctx.throw(404); }
+    ctx.body = user.followingTopics;
+  }
+  // トピックフォロー
+  async followTopic(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+followingTopics');
+    if (!me.followingTopics.map(id => id.toString()).includes(ctx.params.id)) {
+      me.followingTopics.push(ctx.params.id);
+      me.save();
+    }
+    ctx.status = 204;
+  }
+  // トピックフォロー解除
+  async unfollowTopic(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+followingTopics');
+    const index = me.followingTopics.map(id => id.toString()).indexOf(ctx.params.id);
+    if (index > -1) {
+      me.followingTopics.splice(index, 1);
+      me.save();
+    }
+    ctx.status = 204;
+  }
 }
 
-module.exports = new Userctl();
+module.exports = new UsersCtl();

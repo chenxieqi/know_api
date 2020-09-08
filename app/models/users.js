@@ -23,17 +23,21 @@ const userSchema = new Schema({
   avatar_url: { type: String },
   gender: { type: String, enum: ['male', 'female', 'other'], default: 'male', required: true },
   introduction: { type: String },
-  locations: { type: [{ type: String }], select: false },
-  business: { type: String, select: false },
+  locations: { type: [{ type: Schema.Types.ObjectId, ref: 'Topic' }], select: false },
+  business: { type: Schema.Types.ObjectId, ref: 'Topic', select: false },
   educations: {
     type: [{
-      school: { type: String },
-      major: { type: String },
+      school: { type: Schema.Types.ObjectId, ref: 'Topic' },
+      major: { type: Schema.Types.ObjectId, ref: 'Topic' },
       diploma: { type: Number, enum: [1, 2, 3, 4, 5] }
     }], select: false
   },
   following: {
     type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    select: false
+  },
+  followingTopics: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Topic' }],
     select: false
   }
 });
