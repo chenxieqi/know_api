@@ -4,8 +4,17 @@ const router = new Router({ prefix: '/users' });
 const { index, create, findAll, login, 
         update, checkOwner, findById, checkUserExist,
         followingList, follow, unfollow, followerList, 
-        followingTopicList, checkTopicExist, followTopic, unfollowTopic } = require('../controllers/users');
+        followingTopicList, followTopic, unfollowTopic, listQuestions, 
+        followingQuestionList, followQuestion, unfollowQuestion,
+        listLikingAnswers, likingAnswer, cancelLikingAnswer, dislikingAnswer, cancelDislikingAnswer, listdisLikingAnswers,
+        listCollectingAnswers,
+        collectingAnswer,
+        cancelCollectingAnswer, } = require('../controllers/users');
+const { checkAnswerer } = require('../controllers/answers');
+const { checkTopicExist } = require('../controllers/topics');
+const { checkQuestionExist } = require('../controllers/questions');
 const { secret } = require('../config');
+
 
 // auth using jsonwebtoken
 // const auth = async( ctx,next )=>{
@@ -48,5 +57,31 @@ router.get('/:id/followingTopicList', followingTopicList);
 router.post('/followingTopic/:id', auth, checkTopicExist, followTopic);
 
 router.delete('/followingTopic/:id', auth, checkTopicExist, unfollowTopic);
+
+router.get('/:id/followingQuestionList', followingQuestionList);
+
+router.post('/followingQuestion/:id', auth, checkQuestionExist, followQuestion);
+
+router.delete('/followingQuestion/:id', auth, checkQuestionExist, unfollowQuestion);
+
+router.get('/:id/questions', listQuestions);
+
+router.get('/:id/likingAnswerList', listLikingAnswers);
+
+router.post('/likingAnswer/:id', auth, checkAnswerer, likingAnswer, cancelDislikingAnswer);
+
+router.delete('/likingAnswer/:id', auth, checkAnswerer, cancelLikingAnswer);
+
+router.get('/:id/dislikingAnswerList', listdisLikingAnswers);
+
+router.post('/dislikingAnswer/:id', auth, checkAnswerer, dislikingAnswer, cancelLikingAnswer);
+
+router.delete('/dislikingAnswer/:id', auth, checkAnswerer, cancelDislikingAnswer);
+
+router.get('/:id/collectingAnswerList', listCollectingAnswers);
+
+router.post('/collectingAnswer/:id', auth, checkAnswerer, collectingAnswer);
+
+router.delete('/collectingAnswer/:id', auth, checkAnswerer, cancelCollectingAnswer);
 
 module.exports = router;

@@ -2,7 +2,8 @@
  * ユーザーAPI
  */
 const User = require('../models/users');
-const Topic = require('../models/topics')
+const Topic = require('../models/topics');
+const Question = require('../models/questions');
 const jsonwebtoken = require('jsonwebtoken');
 const { secret } = require('../config');
 
@@ -113,12 +114,6 @@ class UsersCtl {
     }
     ctx.status = 204;
   }
-  // トピック存在チェック
-  async checkTopicExist(ctx, next) {
-    const topic = await Topic.findById(ctx.params.id);
-    if (!topic) { ctx.throw(404, 'topic does not exist'); }
-    await next();
-  }
   // トピックフォローリスト
   async followingTopicList(ctx) {
     const user = await User.findById(ctx.params.id).select('+followingTopics').populate('followingTopics');
@@ -140,6 +135,117 @@ class UsersCtl {
     const index = me.followingTopics.map(id => id.toString()).indexOf(ctx.params.id);
     if (index > -1) {
       me.followingTopics.splice(index, 1);
+      me.save();
+    }
+    ctx.status = 204;
+  }
+  // 質問フォローリスト
+  async followingQuestionList(ctx) {
+    const user = await User.findById(ctx.params.id).select('+followingQuestions').populate('followingQuestions');
+    if (!user) { ctx.throw(404); }
+    ctx.body = user.followingQuestions;
+  }
+  // 質問フォロー
+  async followQuestion(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+followingQuestions');
+    if (!me.followingQuestions.map(id => id.toString()).includes(ctx.params.id)) {
+      me.followingQuestions.push(ctx.params.id);
+      me.save();
+    }
+    ctx.status = 204;
+  }
+  // 質問フォロー解除
+  async unfollowQuestion(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+followingQuestions');
+    const index = me.followingQuestions.map(id => id.toString()).indexOf(ctx.params.id);
+    if (index > -1) {
+      me.followingQuestions.splice(index, 1);
+      me.save();
+    }
+    ctx.status = 204;
+  }
+  // 質問リスト
+  async listQuestions(ctx) {
+    const questions = await Question.find({ questioner: ctx.params.id });
+    if (!questions) { ctx.throw(404, 'questions not found'); }
+    ctx.body = questions;
+  }
+  // いいねした答えリスト
+  async listLikingAnswers(ctx) {
+    const likingAnswers = await User.findById(ctx.params.id).select('+likingAnswers').populate('likingAnswers');
+    if (!likingAnswers) { ctx.throw(404, 'Liking answers not found'); }
+    ctx.body = likingAnswers;
+  }
+  // 答えにいいねする
+  async likingAnswer(ctx, next) {
+    const me = await User.findById(ctx.state.user._id).select('+likingAnswers');
+    if (!me.likingAnswers.map(id => id.toString()).includes(ctx.params.id)) {
+      me.likingAnswers.push(ctx.params.id);
+      me.save();
+      await Question.findByIdAndUpdate(ctx.params.id,{ $inc: {voteCount: 1}});
+    }
+    ctx.status = 204;
+    await next();
+  }
+  // 答えのいいねをキャンセルする
+  async cancelLikingAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+likingAnswers');
+    const index = me.likingAnswers.map(id => id.toString()).indexOf(ctx.params.id);
+    if (index > -1) {
+      me.likingAnswers.splice(index, 1);
+      me.save();
+      await Question.findByIdAndUpdate(ctx.params.id,{ $inc: {voteCount: -1}});
+    }
+    ctx.status = 204;
+  }
+  // ディスした答えリスト
+  async listdisLikingAnswers(ctx) {
+    const dislikingAnswers = await User.findById(ctx.params.id).select('+dislikingAnswers').populate('dislikingAnswers');
+    if (!dislikingAnswers) { ctx.throw(404, 'Disliking answers not found'); }
+    ctx.body = dislikingAnswers;
+  }
+  // 答えにディスする
+  async dislikingAnswer(ctx, next) {
+    const me = await User.findById(ctx.state.user._id).select('+dislikingAnswers');
+    if (!me.dislikingAnswers.map(id => id.toString()).includes(ctx.params.id)) {
+      me.dislikingAnswers.push(ctx.params.id);
+      me.save();
+    }
+    ctx.status = 204;
+    await next();
+  }
+  // 答えのディスをキャンセルする
+  async cancelDislikingAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+dislikingAnswers');
+    const index = me.dislikingAnswers.map(id => id.toString()).indexOf(ctx.params.id);
+    if (index > -1) {
+      me.dislikingAnswers.splice(index, 1);
+      me.save();
+    }
+    ctx.status = 204;
+  }
+  // 答えコレクションリスト
+  async listCollectingAnswers(ctx) {
+    const collectingAnswers = await User.findById(ctx.params.id).select('+collectingAnswers').populate('collectingAnswers');
+    if (!collectingAnswers) { ctx.throw(404, 'collecting answers not found'); }
+    ctx.body = collectingAnswers;
+  }
+  // 答えに保存する
+  async collectingAnswer(ctx, next) {
+    const me = await User.findById(ctx.state.user._id).select('+collectingAnswers');
+    if (!me.collectingAnswers.map(id => id.toString()).includes(ctx.params.id)) {
+      me.collectingAnswers.push(ctx.params.id);
+      me.save();
+    }
+    ctx.status = 204;
+    await next();
+  }
+  // 答えの保存をキャンセルする
+  async cancelCollectingAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+collectingAnswers');
+    const index = me.collectingAnswers.map(id => id.toString()).indexOf(ctx.params.id);
+    if (index > -1) {
+      me.collectingAnswers.splice(index, 1);
       me.save();
     }
     ctx.status = 204;

@@ -11,6 +11,8 @@
     major: 専門
     diploma: 学位
   following: フォロー
+  likingAnswers: いいねした答え
+  dislikingAnswers: ディスした答え
  */
 const Mongoose = require('mongoose');
 
@@ -39,7 +41,23 @@ const userSchema = new Schema({
   followingTopics: {
     type: [{ type: Schema.Types.ObjectId, ref: 'Topic' }],
     select: false
-  }
+  },
+  followingQuestions: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Question' }],
+    select: false
+  },
+  likingAnswers: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+    select: false
+  },
+  dislikingAnswers: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+    select: false
+  },
+  collectingAnswers: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Answer' }],
+    select: false
+  },
 });
 
 module.exports = model('User', userSchema);

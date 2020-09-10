@@ -3,6 +3,7 @@
  */
 const Topic = require('../models/topics');
 const User = require('../models/users');
+const Question = require('../models/questions');
 const { secret } = require('../config');
 
 class TopicsCtl {
@@ -38,7 +39,6 @@ class TopicsCtl {
     ctx.body = topic;
   }
   async findById(ctx) {
-    const id = ctx.params.id;
     const { fileds = '' } = ctx.query;
     const selectedFileds = fileds.split(';').filter(f => f).map(f => ' +' + f).join('');
     const topic = await Topic.findById(ctx.params.id).select(selectedFileds);
@@ -54,6 +54,10 @@ class TopicsCtl {
   async topicFollowerList(ctx) {
     const users = await User.find({ followingTopics: ctx.params.id });
     ctx.body = users;
+  }
+  async topicQuestionList(ctx) {
+    const questions = await Question.find({ topics: ctx.params.id });
+    ctx.body = questions;
   }
 }
 
