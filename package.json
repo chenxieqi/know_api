@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start":"node ./app/index.js",
     "dev": "DEBUG=* nodemon ./app/index.js",
     "pro": "NODE_ENV=production node ./app/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
