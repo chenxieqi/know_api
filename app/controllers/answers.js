@@ -45,7 +45,7 @@ class AnswerCtl {
     const setPage = Math.max(page * 1, 1) - 1;
     const perPage = Math.max(per_page * 1, 1);
     const q = new RegExp(ctx.query.q);
-    ctx.body = await Answer.find({ $or: [{content: q},{questionId: ctx.params.questionId }] }).limit(perPage).skip(setPage * perPage);
+    ctx.body = await Answer.find({ content: q, questionId: ctx.params.questionId }).limit(perPage).skip(setPage * perPage);
   }
   async delete(ctx){
     await Answer.findByIdAndRemove(ctx.params.id);

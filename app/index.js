@@ -8,6 +8,7 @@ const error = require('koa-json-error');
 const paramater = require('koa-parameter');
 const routing = require('./routes');
 const {connectionStr} = require('./config');
+const port = process.env.PORT || 3000;
 
 Mongoose.connect(connectionStr,{ useNewUrlParser: true ,useUnifiedTopology: true});
 Mongoose.connection.on('connected',()=>console.log('connected'));
@@ -30,7 +31,7 @@ app.use(error({
 routing(app);
 
 
-app.listen(3000,() => { console.log('server on') });
+app.listen(port,() => { console.log('server on') });
 
 
 

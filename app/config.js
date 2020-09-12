@@ -1,4 +1,4 @@
 module.exports = {
-  connectionStr: 'mongodb://127.0.0.1:27017/know',
+  connectionStr: 'mongodb+srv://toka:toka@cluster0.d7dkv.mongodb.net/know?retryWrites=true&w=majority',
   secret: 'know'
 }
