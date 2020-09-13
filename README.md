@@ -12,11 +12,11 @@ Koa2
 mongodb
 
 ### プラグインなど
-"koa-jwt": "^4.0.0",
-"koa-parameter": "^3.0.1",
-"koa-router": "^9.4.0",
-"koa-static": "^5.0.0",
-"mongoose": "^5.10.3"
+    "koa-jwt": "^4.0.0",
+    "koa-parameter": "^3.0.1",
+    "koa-router": "^9.4.0",
+    "koa-static": "^5.0.0",
+    "mongoose": "^5.10.3"
 
 ### 期間
 2週間
