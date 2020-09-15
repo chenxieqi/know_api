@@ -22,7 +22,7 @@ mongodb
 2週間
 
 ### 説明
-Quoraを参考にした自作ウェブサイトKnowのバックエンドAPI<br>
+[Quora](https://www.quora.com/ "Quora")を参考にした自作ウェブサイトKnowのバックエンドAPI<br>
 [github RESTful　API](https://developer.github.com/v3/#schema "github RESTful　API")を参考にしました
 
 実現した機能：<br>
